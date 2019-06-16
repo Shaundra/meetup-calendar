@@ -1,5 +1,4 @@
 import ICAL from 'ical.js';
-// import { FullCalendar } from 'fullcalendar'
 import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
 import './app.css'
@@ -7,10 +6,17 @@ import '@fullcalendar/core/main.css';
 import '@fullcalendar/daygrid/main.css';
 
 
+let evDtlElmt = document.createElement('div')
+evDtlElmt.id = 'event-detail'
+
 let calElmt = document.createElement('div')
 calElmt.id = 'calendar'
+
 let body = document.getElementsByTagName('body')[0]
+body.append(evDtlElmt)
 body.append(calElmt)
+
+// create an event-view div for holding event info when clicked
 
 const eventTest = [
   {
@@ -42,7 +48,11 @@ const eventTest = [
 
 let calendar = new Calendar(calElmt, {
   plugins: [ dayGridPlugin ],
-  // events: eventTest
+  eventClick: function(info) { // function for onClick
+    info.jsEvent.preventDefault()
+    console.log('after clicking an event', info.event)
+    renderCalEventDetailsToDOM(info)
+  }
 });
 calendar.render()
 
@@ -59,17 +69,18 @@ fetch(corsAnywhere + ex_cal)
     console.log('ive parsed the file', parsedCal)
     parsedCal[2].forEach(event => {
       if (event[0] === 'vevent') {
-        let consolidatedEvent = {}
-        const eventAttrMap = {
+        let consolidatedEvent = {extendedProps: {}}
+        const attrMap = {
           dtstart: 'start',
           dtend: 'end',
           summary: 'title'
         }
         event[1].forEach(eventAttr => {
-          if (eventAttrMap[eventAttr[0]]) {
-            consolidatedEvent[eventAttrMap[eventAttr[0]]] = eventAttr[3]
+          if (attrMap[eventAttr[0]]) {
+            consolidatedEvent[attrMap[eventAttr[0]]] = eventAttr[3]
           } else {
-            consolidatedEvent[eventAttr[0]] = eventAttr[3]
+            // consolidatedEvent[eventAttr[0]] = eventAttr[3]
+            consolidatedEvent['extendedProps'][eventAttr[0]] = eventAttr[3]
           }
         })
         events.push(consolidatedEvent)
@@ -80,3 +91,31 @@ fetch(corsAnywhere + ex_cal)
 
     calendar.addEventSource(events)
   })
+
+function renderCalEventDetailsToDOM(info) {
+  const details = {
+    'title': 'title', 'start': 'start', 'end': 'end', 'description': 'description', 'location': 'location', 'url': 'url'
+  }
+
+  for (let attr in details) {
+    let attrElmt = document.createElement('p')
+    attrElmt.className = 'event-detail-attrs'
+
+    switch(attr) {
+      case 'title':
+      case 'start':
+      case 'end':
+        attrElmt.innerText = info.event[attr]
+        console.log(`i\ve just set text equal to attr: ${attr}`)
+        break
+      case 'description':
+      case 'location':
+      case 'url':
+        attrElmt.innerText = info.event.extendedProps[attr]
+        console.log(`i\ve just set text equal to attr: ${attr}`)
+        break
+    }
+
+    evDtlElmt.append(attrElmt)
+  }
+}
