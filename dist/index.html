@@ -6,6 +6,20 @@
   </head>
   <body>
     <h2>A Test Page...</h2>
+    <!-- <button type='button' class="link-like" data-a11y-dialog-show='event-detail-dialog'>Open the Dialog</button> -->
+    <div id='calendar'></div>
+    <div class="dialog" id="event-detail-dialog">
+      <div class="dialog-overlay" tabindex="-1" data-a11y-dialog-hide="event-detail-dialog"></div>
+      <div id='dialog-content-div' role="dialog" class="dialog-content" aria-labelledby="dialog-title" aria-describedby="dialog-description">
+        <button data-a11y-dialog-hide="event-detail-dialog" class="dialog-close" aria-label="Close this dialog window">&times;</button>
+
+        <!-- <h1 id="dialog-title">Subscribe to ESPI Newsletter</h1> -->
+
+        <!-- <p id="dialog-description">Fill in the ridiculously small form below to receive our ridiculously cool newsletter!</p> -->
+        <ul id='dialog-attr-ul'></ul>
+      </div>
+    </div>
+
     <script src="main.js"></script>
     <!-- <script type="text/javascript" src="./src/scratch.js"></script> -->
     <!-- <script type="text/javascript" src="https://rawgit.com/mozilla-comm/ical.js/master/build/ical.js"></script> -->
