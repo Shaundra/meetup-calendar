@@ -1,20 +1,30 @@
 import ICAL from 'ical.js';
 import { Calendar } from '@fullcalendar/core';
 import dayGridPlugin from '@fullcalendar/daygrid';
+import timeGridPlugin from '@fullcalendar/timegrid';
 import './app.css';
 import '@fullcalendar/core/main.css';
 import '@fullcalendar/daygrid/main.css';
+import '@fullcalendar/timegrid/main.css';
 import A11yDialog from 'a11y-dialog';
 
 const calElmt = document.getElementById('calendar')
 const eventDetailElmt = document.getElementById('event-detail-dialog')
 
-document.addEventListener('DOMContentLoaded', function () {
-  const dialog = new A11yDialog(eventDetailElmt, calElmt);
-});
+const dialog = new A11yDialog(eventDetailElmt, calElmt);
+// window.dia = dialog
 
 const calendar = new Calendar(calElmt, {
-  plugins: [ dayGridPlugin ],
+  plugins: [ dayGridPlugin, timeGridPlugin ],
+  defaultView: 'dayGridMonth', //'timeGridWeek',
+  header: {
+    left:   'title',
+    center: 'timeGridWeek, dayGridMonth',
+    right:  'today, prev, next'
+  },
+  views: {
+    timeGrid: {scrollTime: '12:00'}
+  },
   eventRender: function(info) {
     const newBtn = document.createElement('button')
     newBtn.className = 'event-details-btn'
@@ -22,27 +32,29 @@ const calendar = new Calendar(calElmt, {
     newBtn.innerText='Details'
     info.el.append(newBtn)
   },
+  eventPositioned: function(info) {
+    dialog.destroy()
+    dialog.create()
+  },
   eventClick: function(info) { // function for onClick
     info.jsEvent.preventDefault()
-    console.log('after clicking an event', info.event)
     renderCalEventDetailsToDOM(info)
   }
 });
 calendar.render()
 
-window.cal = calendar
+// window.cal = calendar
 
-const corsAnywhere = 'https://cors-anywhere.herokuapp.com/'
 const calEventSources = [
   'https://www.meetup.com/Seattle-Mochalites/events/ical/71573322/891c1cd21aec84eeed7362ccad7b35b3cca4c99c/Seattle+Mochalites/',
   'https://www.meetup.com/Seattle-PyLadies/events/ical/'
 ]
 
 fetchCalendarEventSources(calEventSources)
-  .then(() => {
-    const evtDetailDiv = document.getElementById('event-detail-dialog')
-    const evtDetailDialog = new A11yDialog(evtDetailDiv, calElmt)
-  })
+  // .then(() => {
+  //   const evtDetailDiv = document.getElementById('event-detail-dialog')
+  //   const evtDetailDialog = new A11yDialog(evtDetailDiv, calElmt)
+  // })
 
 function renderCalEventDetailsToDOM(info) {
   const details = {
