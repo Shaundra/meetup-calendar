@@ -22,14 +22,9 @@ html, body {
   display: none;
 }
 
-[data-a11y-dialog-native] > :first-child {
-  display: none;
-}
-
-/**
- * When `<dialog>` is not supported, its default display is `inline` which can
- * cause layout issues.
- */
+/*
+When `<dialog>` is not supported, its default display is `inline` which can cause layout issues.
+*/
 dialog[open] {
   display: block;
 }
@@ -38,9 +33,9 @@ dialog[open] {
   display: none;
 }
 
-/* -------------------------------------------------------------------------- *\
- * Styling to make the dialog look like a dialog
- * -------------------------------------------------------------------------- */
+/*
+Styling to make the dialog look like a dialog
+*/
 
 .dialog-overlay {
   z-index: 2;
@@ -145,7 +140,7 @@ dialog::backdrop {
 }
 
 body {
-  font: 125% / 1.5 'ESPI', serif;
+  /* font: 125% / 1.5 'ESPI', serif; */
   padding: 2em 0;
 }
 
@@ -159,7 +154,7 @@ h1 span {
 }
 
 h1, h2 {
-  font-family: 'ESPI Slab', sans-serif;
+  /* font-family: 'ESPI Slab', sans-serif; */
   margin-bottom: 0;
 }
 
@@ -202,64 +197,4 @@ a:active {
 footer {
   border-top: 1px solid silver;
   padding: 20px 0;
-}
-
-/* -------------------------------------------------------------------------- *\
- * Form styling
- * -------------------------------------------------------------------------- */
-
-form {
-  margin-top: 2em;
-}
-
-@media screen and (min-width: 700px) {
-  form {
-    display: -webkit-box;
-    display: -webkit-flex;
-    display: -ms-flexbox;
-    display: flex;
-  }
-}
-
-form label {
-  font-weight: bold;
-  margin: 5px 10px 5px 0;
-  vertical-align: middle;
-}
-
-form input {
-  font: inherit;
-  padding: 0.25em;
-  border: 1px solid silver;
-  width: 100%;
-  margin: 0.25em 0 1em;
-}
-
-@media screen and (min-width: 700px) {
-  form input {
-    -webkit-box-flex: 1;
-    -webkit-flex: 1;
-    -ms-flex: 1;
-    flex: 1;
-    border-right: 0;
-    width: auto;
-    margin: 0;
-  }
-}
-
-form button {
-  background-color: #81c784;
-  color: white;
-  border: 0;
-  font-family: inherit;
-  font-size: inherit;
-  padding: 8px 15px;
-  cursor: pointer;
-  transition: 0.15s;
-  display: inline-block;
-}
-
-form button:hover,
-form button:active {
-  background-color: #66bb6a;
 }

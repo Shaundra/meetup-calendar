@@ -22,8 +22,9 @@ const calendar = new Calendar(calElmt, {
     center: 'timeGridWeek, dayGridMonth',
     right:  'today, prev, next'
   },
+  eventLimit: 4,
   views: {
-    timeGrid: {scrollTime: '12:00'}
+    timeGrid: {scrollTime: '12:00', slotEventOverlap: true}
   },
   eventRender: function(info) {
     const newBtn = document.createElement('button')
@@ -46,8 +47,12 @@ calendar.render()
 // window.cal = calendar
 
 const calEventSources = [
-  'https://www.meetup.com/Seattle-Mochalites/events/ical/71573322/891c1cd21aec84eeed7362ccad7b35b3cca4c99c/Seattle+Mochalites/',
-  'https://www.meetup.com/Seattle-PyLadies/events/ical/'
+  'https://www.meetup.com/shescoding-seattle/events/ical/',
+  'https://www.meetup.com/PSPPython/events/ical/',
+  'https://www.meetup.com/Seattle-PyLadies/events/ical/',
+  'https://www.meetup.com/openseattle/events/ical/',
+  'https://www.meetup.com/seattle-api/events/ical/',
+  'https://www.meetup.com/seattlestupidhackathon/events/ical/'
 ]
 
 fetchCalendarEventSources(calEventSources)
