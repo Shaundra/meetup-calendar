@@ -46,7 +46,7 @@ calendar.render()
 
 // window.cal = calendar
 
-const calEventSources = [
+const seedCalEventSources = [
   'https://www.meetup.com/shescoding-seattle/events/ical/',
   'https://www.meetup.com/PSPPython/events/ical/',
   'https://www.meetup.com/Seattle-PyLadies/events/ical/',
@@ -55,18 +55,16 @@ const calEventSources = [
   'https://www.meetup.com/seattlestupidhackathon/events/ical/'
 ]
 
-fetchCalendarEventSources(calEventSources)
-  // .then(() => {
-  //   const evtDetailDiv = document.getElementById('event-detail-dialog')
-  //   const evtDetailDialog = new A11yDialog(evtDetailDiv, calElmt)
-  // })
+const localEventSources = pushCalEventSourcesToLocalStorage(seedCalEventSources)
+fetchCalendarEventSources(localEventSources)
+
+renderViewCalSource(calElmt)
 
 function renderCalEventDetailsToDOM(info) {
   const details = {
     'title': 'title', 'start': 'start', 'end': 'end', 'description': 'description', 'location': 'location', 'url': 'url'
   }
 
-  const evtDetailContent = document.getElementById('dialog-content-div')
   const evtDetailUl = document.getElementById('dialog-attr-ul')
 
   const evtDetailItms = Array.from(document.querySelector('#dialog-content-div ul').children)
@@ -90,11 +88,9 @@ function renderCalEventDetailsToDOM(info) {
     }
     evtDetailUl.append(attrElmt)
   }
-
-  evtDetailContent.append(evtDetailUl)
 }
 
-function parseCalEventsFromSource(calendarText) {
+function parseCalEventsFromSource(calendarText, calendarURL) {
   let events = []
   const parsedCal = ICAL.parse(calendarText)
   const calName = parsedCal[1][5][3]
@@ -123,7 +119,7 @@ function parseCalEventsFromSource(calendarText) {
 
   console.log('i\'ve added events', events)
 
-  const newEventSource = {id: calName, events}
+  const newEventSource = {id: calName, srcURL: calendarURL, events}
   calendar.addEventSource(newEventSource)
 }
 
@@ -135,8 +131,65 @@ function fetchCalendarEventSources(eventSources) {
       return (
         fetch(corsAnywhere + eventSource)
         .then(resp => resp.text())
-        .then(calText => parseCalEventsFromSource(calText))
+        .then(calText => parseCalEventsFromSource(calText, eventSource))
       )
     })
   )
+}
+
+function pushCalEventSourcesToLocalStorage(calEventSources) {
+  // if there are sources in localstorage, use those. else use seeds
+  if (!localStorage['calendarSources']) {
+    localStorage['calendarSources'] = JSON.stringify(calEventSources)
+  }
+
+  return JSON.parse(localStorage['calendarSources'])
+}
+
+function renderViewCalSource(calendarDiv) {
+  const newBtn = document.createElement('button')
+  newBtn.innerText = 'Calendar Sources'
+  newBtn.className = 'event-sources-btn'
+  newBtn.setAttribute('data-a11y-dialog-show', 'event-detail-dialog')
+
+  newBtn.addEventListener('click', () => renderEventSourcesToDialog())
+
+  calendarDiv.prepend(newBtn)
+}
+
+function renderEventSourcesToDialog() {
+  const dialogUl = document.getElementById('dialog-attr-ul')
+
+  const addBtn = document.createElement('button')
+  addBtn.innerText = 'Add Calendar Source'
+  addBtn.className = 'add-source-btn'
+  dialogUl.append(addBtn)
+
+  const calEventSources = calendar.getEventSources()
+  console.log("event sources-", calEventSources)
+
+  calEventSources.forEach(src => {
+    let srcLi = document.createElement('li')
+    srcLi.innerText = src.id
+
+    const deleteBtn = document.createElement('button')
+    deleteBtn.innerText = 'Delete'
+    deleteBtn.className = 'delete-source-btn'
+    deleteBtn.addEventListener('click', () => {
+      console.log('removing an event source', src.id)
+      src.remove()
+      removeSourceFromStorage(src.internalEventSource._raw.srcURL)
+    })
+    srcLi.append(deleteBtn)
+
+    dialogUl.append(srcLi)
+  })
+
+}
+
+function removeSourceFromStorage(src) {
+  const currStorage = JSON.parse(localStorage.getItem('calendarSources'))
+  const newStorage = JSON.stringify(currStorage.filter(url => url !== src))
+
+  localStorage.setItem('calendarSources', newStorage)
 }
