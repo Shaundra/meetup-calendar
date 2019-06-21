@@ -94,8 +94,37 @@ function renderCalEventDetailsToDOM(info) {
   evtDetailContent.append(evtDetailUl)
 }
 
-function renderEventDetailsToDialog(info) {
+function parseCalEventsFromSource(calendarText) {
+  let events = []
+  const parsedCal = ICAL.parse(calendarText)
+  const calName = parsedCal[1][5][3]
+  // console.log('ive parsed the file', parsedCal)
 
+  parsedCal[2].forEach(event => {
+    if (event[0] === 'vevent') {
+      let consolidatedEvent = {extendedProps: {}}
+
+      const attrMap = {
+        dtstart: 'start',
+        dtend: 'end',
+        summary: 'title'
+      }
+
+      event[1].forEach(eventAttr => {
+        if (attrMap[eventAttr[0]]) {
+          consolidatedEvent[attrMap[eventAttr[0]]] = eventAttr[3]
+        } else {
+          consolidatedEvent['extendedProps'][eventAttr[0]] = eventAttr[3]
+        }
+      })
+      events.push(consolidatedEvent)
+    }
+  })
+
+  console.log('i\'ve added events', events)
+
+  const newEventSource = {id: calName, events}
+  calendar.addEventSource(newEventSource)
 }
 
 function fetchCalendarEventSources(eventSources) {
@@ -106,38 +135,7 @@ function fetchCalendarEventSources(eventSources) {
       return (
         fetch(corsAnywhere + eventSource)
         .then(resp => resp.text())
-        .then(calText => {
-          let events = []
-          let parsedCal = ICAL.parse(calText)
-          const calName = parsedCal[1][5][3]
-          console.log('ive parsed the file', parsedCal)
-
-          parsedCal[2].forEach(event => {
-            if (event[0] === 'vevent') {
-              let consolidatedEvent = {extendedProps: {}}
-
-              const attrMap = {
-                dtstart: 'start',
-                dtend: 'end',
-                summary: 'title'
-              }
-
-              event[1].forEach(eventAttr => {
-                if (attrMap[eventAttr[0]]) {
-                  consolidatedEvent[attrMap[eventAttr[0]]] = eventAttr[3]
-                } else {
-                  consolidatedEvent['extendedProps'][eventAttr[0]] = eventAttr[3]
-                }
-              })
-              events.push(consolidatedEvent)
-            }
-          })
-
-          console.log('i\'ve added events', events)
-
-          const newEventSource = {id: calName, events}
-          calendar.addEventSource(newEventSource)
-        })
+        .then(calText => parseCalEventsFromSource(calText))
       )
     })
   )
