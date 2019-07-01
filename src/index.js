@@ -73,6 +73,7 @@ function renderCalEventDetailsToDOM(info) {
   for (let attr in details) {
     let attrElmt = document.createElement('li')
     attrElmt.className = 'event-detail-attrs'
+    attrElmt.setAttribute('name', `event-detail-${attr}`)
 
     switch(attr) {
       case 'title':
@@ -82,10 +83,22 @@ function renderCalEventDetailsToDOM(info) {
         break
       case 'description':
       case 'location':
-      case 'url':
+      // case 'url':
         attrElmt.innerText = info.event.extendedProps[attr]
         break
+      case 'url':
+        const eventURL = document.createElement('a')
+        const linkAttrs = [['rel', 'noreferrer noopener'], ['href', info.event.extendedProps[attr]], ['target', '_blank']]
+        linkAttrs.forEach(attr => eventURL.setAttribute(attr[0], attr[1]))
+        eventURL.innerText = info.event.extendedProps[attr]
+        attrElmt.append(eventURL)
+        break
     }
+
+    const attrName = document.createElement('span')
+    attrName.innerText = `Event ${attr}: `
+    attrElmt.prepend(attrName)
+
     evtDetailUl.append(attrElmt)
   }
 }
@@ -173,6 +186,7 @@ function renderEventSourcesToDialog() {
 
   calEventSources.forEach(src => {
     let srcLi = document.createElement('li')
+    srcLi.className = 'cal-sources-list'
     srcLi.innerText = src.id
 
     const deleteBtn = document.createElement('button')

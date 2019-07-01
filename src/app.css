@@ -198,3 +198,37 @@ footer {
   border-top: 1px solid silver;
   padding: 20px 0;
 }
+
+.dialog form {
+  display: grid;
+  padding-bottom: 1rem;
+}
+
+form input, form button {
+  padding: .5rem;
+}
+
+.event-detail-attrs {
+  list-style: none;
+  display: block;
+  padding: 1rem;
+}
+
+.event-detail-attrs span {
+  text-transform: capitalize;
+  font-weight: bold;
+}
+
+.cal-sources-list {
+  list-style: none;
+  display: block;
+  padding: .25rem;
+}
+
+.add-source-btn {
+  width: 100%;
+  padding: .5rem;
+  margin-top: .5rem;
+  margin-bottom: 1rem;
+  text-transform: uppercase;
+}
