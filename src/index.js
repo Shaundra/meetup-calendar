@@ -139,11 +139,11 @@ function fetchCalendarEventSources(eventSources) {
 
 function pushCalEventSourcesToLocalStorage(calEventSources) {
   // if there are sources in localstorage, use those. else use seeds
-  if (!localStorage['calendarSources']) {
-    localStorage['calendarSources'] = JSON.stringify(calEventSources)
+  if (!localStorage.getItem('calendarSources')) {
+    localStorage.setItem('calendarSources', JSON.stringify(calEventSources))
   }
 
-  return JSON.parse(localStorage['calendarSources'])
+  return JSON.parse(localStorage.getItem('calendarSources'))
 }
 
 function renderViewCalSource(calendarDiv) {
@@ -159,10 +159,13 @@ function renderViewCalSource(calendarDiv) {
 
 function renderEventSourcesToDialog() {
   const dialogUl = document.getElementById('dialog-attr-ul')
+  const dialogItms = Array.from(document.querySelector('#dialog-content-div ul').children)
+  dialogItms.forEach(itm => itm.remove())
 
   const addBtn = document.createElement('button')
   addBtn.innerText = 'Add Calendar Source'
   addBtn.className = 'add-source-btn'
+  addBtn.addEventListener('click', () => addCalEventSource(dialogUl, addBtn))
   dialogUl.append(addBtn)
 
   const calEventSources = calendar.getEventSources()
@@ -184,7 +187,6 @@ function renderEventSourcesToDialog() {
 
     dialogUl.append(srcLi)
   })
-
 }
 
 function removeSourceFromStorage(src) {
@@ -192,4 +194,34 @@ function removeSourceFromStorage(src) {
   const newStorage = JSON.stringify(currStorage.filter(url => url !== src))
 
   localStorage.setItem('calendarSources', newStorage)
+}
+
+function addCalEventSource(dialogUL, showDialogBtn) {
+  // on click of button, add input field, hide initial button
+  // on submit, create eventSource, add url to localstorage, show initial button
+  const newSrcForm = document.createElement('form')
+  newSrcForm.addEventListener('submit', (ev) => {
+    ev.preventDefault()
+    // TO-DO: add validation that user input is valid ical url
+    const newSrc = [ev.target.newSrcInput.value]
+
+    fetchCalendarEventSources(newSrc)
+    // TO-DO: only update localStorage on successful fetchCalendarEventSources
+    const currentLocalStorage = JSON.parse(localStorage.getItem('calendarSources'))
+    const updatedLocalStorage = JSON.stringify(currentLocalStorage.concat(newSrc))
+    localStorage.setItem('calendarSources', updatedLocalStorage)
+  })
+
+  const inputBox = document.createElement('input')
+  const inputAttrs = [['type', 'text'], ['name', 'newSrcInput'], ['placeholder', 'https://www.meetup.com/shescoding-seattle/events/ical/']]
+  inputAttrs.forEach(attr => inputBox.setAttribute(attr[0], attr[1]))
+
+  // inputBox.setAttribute('type', 'text')
+  const submitBtn = document.createElement('button')
+  submitBtn.setAttribute('type', 'submit')
+  submitBtn.innerText = 'Save to Calendar'
+  newSrcForm.append(inputBox, submitBtn)
+
+  dialogUL.prepend(newSrcForm)
+  showDialogBtn.remove()
 }
